@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>📊 API Usage Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px 40px;
+      font-size: 1.3rem;
+      color: #222;
+      margin: 10px;
+      min-width: 250px;
+      text-align: center;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .chart-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 220px;
+      margin: auto;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📊 API Usage Dashboard</h1>
+
+  <div class="stats">
+    <div class="stat-card">
+      🔁 Total Requests: <%= totalRequests %>
+    </div>
+    <div class="stat-card">
+      ⏱ Avg Response Time: <%= avgResponseTime %> ms
+    </div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-container">
+      <h2>Requests by Endpoint</h2>
+      <canvas id="endpointChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h2>Top IPs</h2>
+      <canvas id="ipChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const endpointData = <%- JSON.stringify(endpointStats) %>;
+    const ipData = <%- JSON.stringify(ipStats) %>;
+
+    const endpointLabels = endpointData.map(d => d._id);
+    const endpointCounts = endpointData.map(d => d.count);
+
+    const ipLabels = ipData.map(d => d._id);
+    const ipCounts = ipData.map(d => d.count);
+
+    new Chart(document.getElementById('endpointChart'), {
+      type: 'bar',
+      data: {
+        labels: endpointLabels,
+        datasets: [{
+          label: 'Requests',
+          data: endpointCounts,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+
+    new Chart(document.getElementById('ipChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ipLabels,
+        datasets: [{
+          label: 'IP Hits',
+          data: ipCounts,
+          backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  </script>
+
+</body>
+</html>
