@@ -11,6 +11,7 @@ const apiLogger = async (req, res, next) => {
   ];
   if (ignoredPaths.includes(req.originalUrl)) return next();
 
+  const start = process.hrtime(); // start timer
   let ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip;
 
   // Normalize localhost addresses
@@ -18,21 +19,28 @@ const apiLogger = async (req, res, next) => {
     ip = '127.0.0.1';
   }
 
-  await ApiLog.findOneAndUpdate(
-    {
-      method: req.method,
-      endpoint: req.originalUrl,
-      ip
-    },
-    {
-      $inc: { count: 1 },
-      $set: { lastAccessed: new Date() }
-    },
-    { upsert: true, new: true }
-  );
+  res.on('finish', async () => {
+    const diff = process.hrtime(start);
+    const responseTime = (diff[0] * 1e3 + diff[1] / 1e6).toFixed(2); // ms
+
+    await ApiLog.findOneAndUpdate(
+      {
+        method: req.method,
+        endpoint: req.originalUrl,
+        ip
+      },
+      {
+        $inc: { count: 1 },
+        $set: {
+          lastAccessed: new Date(),
+          responseTime: parseFloat(responseTime)
+        }
+      },
+      { upsert: true, new: true }
+    );
+  });
 
   next();
 };
-
 
 export default apiLogger;
