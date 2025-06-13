@@ -3,9 +3,11 @@ import ApiLog from "../models/apilog.js";
 const apiLogger = async (req, res, next) => {
   const ignoredPaths = [
     '/favicon.ico',
+    '/favicon.png',
     '/api/stats',
     '/chart.min.js',
-    '/.well-known/appspecific/com.chrome.devtools.json'
+    '/.well-known/appspecific/com.chrome.devtools.json',
+    'https://tracker-dun-chi.vercel.app/'
   ];
   if (ignoredPaths.includes(req.originalUrl)) return next();
 

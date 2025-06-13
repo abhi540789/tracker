@@ -11,8 +11,9 @@ import { fileURLToPath } from 'url';
 
 const app = express();
 app.use('/', dashboardRoutes);
-app.use(apiLogger);
+
 app.use(express.json());
+app.use(apiLogger);
 app.use('/api', statsRoutes);
     
 const __filename = fileURLToPath(import.meta.url);
